@@ -11,6 +11,7 @@ import (
 
 // Fragment - MP4 Fragment ([prft] + moof + mdat)
 type Fragment struct {
+	Emsgs       []*EmsgBox
 	Prft        *PrftBox
 	Moof        *MoofBox
 	Mdat        *MdatBox
@@ -71,6 +72,9 @@ func CreateMultiTrackFragment(seqNumber uint32, trackIDs []uint32) (*Fragment, e
 // AddChild - Add a top-level box to Fragment
 func (f *Fragment) AddChild(b Box) {
 	switch b.Type() {
+	case "emsg":
+		emsg := b.(*EmsgBox)
+		f.AddEmsg(emsg)
 	case "prft":
 		f.Prft = b.(*PrftBox)
 	case "moof":
@@ -79,6 +83,10 @@ func (f *Fragment) AddChild(b Box) {
 		f.Mdat = b.(*MdatBox)
 	}
 	f.Children = append(f.Children, b)
+}
+
+func (f *Fragment) AddEmsg(emsg *EmsgBox) {
+	f.Emsgs = append(f.Emsgs, emsg)
 }
 
 // Size - return size of fragment including all boxes.
